@@ -42,7 +42,9 @@ import (
 const pluginName = "cherrypick"
 const defaultLabelPrefix = "cherrypick/"
 
-var cherryPickRe = regexp.MustCompile(`(?m)^(?:/cherrypick|/cherry-pick)\s+(.+)$`)
+// var cherryPickRe = regexp.MustCompile(`(?m)^(?:/cherrypick|/cherry-pick)\s+(.+)$`)
+// cherryPickRe adopted from assign CCRegexp
+var cherryPickRe = regexp.MustCompile(`(?m)^(?:/cherrypick|/cherry-pick)(( +@?[-/\w]+?)*)\s*?$`)
 var releaseNoteRe = regexp.MustCompile(`(?s)(?:Release note\*\*:\s*(?:<!--[^<>]*-->\s*)?` + "```(?:release-note)?|```release-note)(.+?)```")
 var titleTargetBranchIndicatorTemplate = `[%s] `
 
@@ -97,6 +99,8 @@ type Server struct {
 	labels []string
 	// Use prow to assign users to cherrypicked PRs.
 	prowAssignments bool
+	// Use prow to request reviewers for cherrypicked PRs.
+	prowReviewRequests bool
 	// Allow anybody to do cherrypicks.
 	allowAll bool
 	// Create an issue on cherrypick conflict.
@@ -184,10 +188,13 @@ func (s *Server) handleIssueComment(l *logrus.Entry, ic github.IssueCommentEvent
 	})
 
 	cherryPickMatches := cherryPickRe.FindAllStringSubmatch(ic.Comment.Body, -1)
-	if len(cherryPickMatches) == 0 || len(cherryPickMatches[0]) != 2 {
+	// if len(cherryPickMatches) == 0 || len(cherryPickMatches[0]) != 2 {
+	if len(cherryPickMatches) == 0 {
 		return nil
 	}
-	targetBranch := strings.TrimSpace(cherryPickMatches[0][1])
+	args := strings.Fields(cherryPickMatches[0][1])
+	targetBranch := strings.TrimSpace(args[0])
+	reviewers := args[1:]
 
 	if ic.Issue.State != "closed" {
 		if !s.allowAll {
@@ -247,7 +254,7 @@ func (s *Server) handleIssueComment(l *logrus.Entry, ic github.IssueCommentEvent
 		"target_branch": targetBranch,
 	})
 	l.Debug("Cherrypick request.")
-	return s.handle(l, ic.Comment.User.Login, &ic.Comment, org, repo, targetBranch, baseBranch, title, body, num)
+	return s.handle(l, ic.Comment.User.Login, &ic.Comment, org, repo, targetBranch, baseBranch, title, body, num, reviewers)
 }
 
 func (s *Server) handlePullRequest(l *logrus.Entry, pre github.PullRequestEvent) error {
@@ -369,7 +376,8 @@ func (s *Server) handlePullRequest(l *logrus.Entry, pre github.PullRequestEvent)
 				"target_branch": targetBranch,
 			})
 			l.Debug("Cherrypick request.")
-			err := s.handle(l, requestor, ic, org, repo, targetBranch, baseBranch, title, body, num)
+			// todo: address PR case for reviewers
+			err := s.handle(l, requestor, ic, org, repo, targetBranch, baseBranch, title, body, num, nil)
 			if err != nil {
 				errs = append(errs, fmt.Errorf("failed to create cherrypick: %w", err))
 			}
@@ -380,7 +388,7 @@ func (s *Server) handlePullRequest(l *logrus.Entry, pre github.PullRequestEvent)
 
 var cherryPickBranchFmt = "cherry-pick-%d-to-%s"
 
-func (s *Server) handle(logger *logrus.Entry, requestor string, comment *github.IssueComment, org, repo, targetBranch, baseBranch, title, body string, num int) error {
+func (s *Server) handle(logger *logrus.Entry, requestor string, comment *github.IssueComment, org, repo, targetBranch, baseBranch, title, body string, num int, reviewers []string) error {
 	var lock *sync.Mutex
 	func() {
 		s.mapLock.Lock()
@@ -498,10 +506,15 @@ func (s *Server) handle(logger *logrus.Entry, requestor string, comment *github.
 
 	// Open a PR in GitHub.
 	var cherryPickBody string
-	if s.prowAssignments {
-		cherryPickBody = cherrypicker.CreateCherrypickBody(num, requestor, releaseNoteFromParentPR(body))
+
+	if s.prowAssignments && s.prowReviewRequests {
+		cherryPickBody = cherrypicker.CreateCherrypickBody(num, requestor, releaseNoteFromParentPR(body), reviewers)
+	} else if s.prowAssignments && !s.prowReviewRequests {
+		cherryPickBody = cherrypicker.CreateCherrypickBody(num, requestor, releaseNoteFromParentPR(body), nil)
+	} else if !s.prowAssignments && s.prowReviewRequests {
+		cherryPickBody = cherrypicker.CreateCherrypickBody(num, "", releaseNoteFromParentPR(body), reviewers)
 	} else {
-		cherryPickBody = cherrypicker.CreateCherrypickBody(num, "", releaseNoteFromParentPR(body))
+		cherryPickBody = cherrypicker.CreateCherrypickBody(num, "", releaseNoteFromParentPR(body), nil)
 	}
 	head := fmt.Sprintf("%s:%s", s.botUser.Login, newBranch)
 	createdNum, err := s.ghc.CreatePullRequest(org, repo, title, cherryPickBody, head, targetBranch, true)
