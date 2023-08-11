@@ -16,13 +16,22 @@ limitations under the License.
 
 package cherrypicker
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // CreateCherrypickBody creates the body of a cherrypick PR
-func CreateCherrypickBody(num int, requestor, note string) string {
+func CreateCherrypickBody(num int, requestor, note string, reviewers []string) string {
 	cherryPickBody := fmt.Sprintf("This is an automated cherry-pick of #%d", num)
 	if len(requestor) != 0 {
 		cherryPickBody = fmt.Sprintf("%s\n\n/assign %s", cherryPickBody, requestor)
+	}
+	if reviewers != nil {
+		cherryPickBody = fmt.Sprintf("%s\n\n/cc ", cherryPickBody)
+		for _, approver := range reviewers {
+			cherryPickBody = fmt.Sprintf("%s ", strings.TrimSpace(approver))
+		}
 	}
 	if len(note) != 0 {
 		cherryPickBody = fmt.Sprintf("%s\n\n%s", cherryPickBody, note)
