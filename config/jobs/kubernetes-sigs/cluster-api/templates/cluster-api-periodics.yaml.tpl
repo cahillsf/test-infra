@@ -218,6 +218,8 @@ periodics:
       env:
       - name: GINKGO_FOCUS
         value: "\\[Conformance\\] \\[K8s-Install\\]"
+      - name: GINKGO_LABEL_FILTER
+        value: "(Conformance && K8s-Install)"
       # Ensure required kind images get built.
       - name: KIND_BUILD_IMAGES
         value: "KUBERNETES_VERSION"
@@ -270,6 +272,8 @@ periodics:
       # Ensure required kind images get built.
       - name: KIND_BUILD_IMAGES
         value: "KUBERNETES_VERSION_LATEST_CI"
+      - name: GINKGO_LABEL_FILTER
+        value: "(Conformance && K8s-Install-ci-latest)"
       # we need privileged mode in order to do docker in docker
       securityContext:
         privileged: true

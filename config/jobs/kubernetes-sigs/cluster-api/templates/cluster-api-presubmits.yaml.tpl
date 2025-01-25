@@ -229,6 +229,9 @@ presubmits:
           # Ensure required kind images get built.
           - name: KIND_BUILD_IMAGES
             value: "KUBERNETES_VERSION"
+          - name: GINKGO_LABEL_FILTER
+            value: "PR-Blocking"
+
         # we need privileged mode in order to do docker in docker
         securityContext:
           privileged: true
@@ -323,8 +326,8 @@ presubmits:
             value: "{{ index (index $.versions ((last $.config.Upgrades).To)) "etcd" }}"
           - name: COREDNS_VERSION_UPGRADE_TO
             value: "{{ index (index $.versions ((last $.config.Upgrades).To)) "coreDNS" }}"
-          - name: GINKGO_FOCUS
-            value: "\\[Conformance\\] \\[K8s-Upgrade\\]"
+          - name: GINKGO_LABEL_FILTER
+            value: "(Conformance && K8s-Upgrade)"
         # we need privileged mode in order to do docker in docker
         securityContext:
           privileged: true
@@ -365,6 +368,8 @@ presubmits:
         env:
         - name: GINKGO_FOCUS
           value: "\\[Conformance\\] \\[K8s-Install\\]"
+        - name: GINKGO_LABEL_FILTER
+          value: "(Conformance && K8s-Install)"
         # Ensure required kind images get built.
         - name: KIND_BUILD_IMAGES
           value: "KUBERNETES_VERSION"
@@ -408,6 +413,8 @@ presubmits:
         env:
         - name: GINKGO_FOCUS
           value: "\\[Conformance\\] \\[K8s-Install-ci-latest\\]"
+        - name: GINKGO_LABEL_FILTER
+          value: "(Conformance && K8s-Install-ci-latest)"
         # Ensure required kind images get built.
         - name: KIND_BUILD_IMAGES
           value: "KUBERNETES_VERSION_LATEST_CI"
