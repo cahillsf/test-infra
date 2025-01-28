@@ -173,8 +173,8 @@ presubmits:
         # enable IPV6 in bootstrap image
         - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
           value: "true"
-        - name: GINKGO_SKIP
-          value: "\\[Conformance\\]"
+        - name: GINKGO_LABEL_FILTER
+          value: "!Conformance"
         # This value determines the minimum Kubernetes
         # supported version for Cluster API management cluster
         # and can be found by referring to [Supported Kubernetes Version](https://cluster-api.sigs.k8s.io/reference/versions.html#supported-kubernetes-versions)
@@ -307,8 +307,8 @@ presubmits:
           # enable IPV6 in bootstrap image
           - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
             value: "true"
-          - name: GINKGO_SKIP
-            value: "\\[Conformance\\]"
+          - name: GINKGO_LABEL_FILTER
+            value: "!Conformance"
         # we need privileged mode in order to do docker in docker
         securityContext:
           privileged: true
@@ -483,8 +483,8 @@ presubmits:
         # enable IPV6 in bootstrap image
         - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
           value: "true"
-        - name: GINKGO_SKIP
-          value: "\\[Conformance\\]"
+        - name: GINKGO_LABEL_FILTER
+          value: "!Conformance"
         - name: KUBERNETES_VERSION_MANAGEMENT
           value: {{ index (index $.versions ((last $.config.Upgrades).To)) "k8sRelease" }}
         - name: KUBERNETES_VERSION
