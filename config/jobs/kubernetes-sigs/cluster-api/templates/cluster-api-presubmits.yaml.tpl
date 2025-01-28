@@ -175,6 +175,8 @@ presubmits:
           value: "true"
         - name: GINKGO_SKIP
           value: "\\[Conformance\\]"
+        - name: GINKGO_LABEL_FILTER
+          value: "!Conformance"
         # Ensure required kind images get built.
         - name: KIND_BUILD_IMAGES
           value: "KUBERNETES_VERSION,KUBERNETES_VERSION_LATEST_CI,KUBERNETES_VERSION_UPGRADE_TO,KUBERNETES_VERSION_UPGRADE_FROM"
@@ -275,6 +277,8 @@ presubmits:
             value: "true"
           - name: GINKGO_SKIP
             value: "\\[Conformance\\]"
+          - name: GINKGO_LABEL_FILTER
+            value: "!Conformance"
           # Ensure required kind images get built.
           - name: KIND_BUILD_IMAGES
             value: "KUBERNETES_VERSION,KUBERNETES_VERSION_LATEST_CI,KUBERNETES_VERSION_UPGRADE_TO,KUBERNETES_VERSION_UPGRADE_FROM"
@@ -460,8 +464,8 @@ presubmits:
         # enable IPV6 in bootstrap image
         - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
           value: "true"
-        - name: GINKGO_SKIP
-          value: "\\[Conformance\\]"
+        - name: GINKGO_LABEL_FILTER
+          value: "!Conformance"
         - name: KUBERNETES_VERSION_MANAGEMENT
           value: {{ index (index $.versions ((last $.config.Upgrades).To)) "k8sRelease" }}
         - name: KUBERNETES_VERSION
