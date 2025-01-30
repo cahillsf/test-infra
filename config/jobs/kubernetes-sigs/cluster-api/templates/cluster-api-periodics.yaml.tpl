@@ -107,8 +107,8 @@ periodics:
             # enable IPV6 in bootstrap image
           - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
             value: "true"
-          - name: GINKGO_SKIP
-            value: "\\[Conformance\\]"
+          - name: GINKGO_LABEL_FILTER
+            value: "!Conformance"
         # we need privileged mode in order to do docker in docker
         securityContext:
           privileged: true
@@ -156,8 +156,8 @@ periodics:
         # enable IPV6 in bootstrap image
       - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
         value: "true"
-      - name: GINKGO_SKIP
-        value: "\\[Conformance\\]"
+      - name: GINKGO_LABEL_FILTER
+        value: "!Conformance"
       # This value determines the minimum Kubernetes
       # supported version for Cluster API management cluster
       # and can be found by referring to [Supported Kubernetes Version](https://cluster-api.sigs.k8s.io/reference/versions.html#supported-kubernetes-versions)
@@ -211,8 +211,8 @@ periodics:
       - runner.sh
       - "./scripts/ci-e2e.sh"
       env:
-      - name: GINKGO_FOCUS
-        value: "\\[Conformance\\] \\[K8s-Install\\]"
+      - name: GINKGO_LABEL_FILTER
+        value: "(Conformance && K8s-Install)"
       # we need privileged mode in order to do docker in docker
       securityContext:
         privileged: true
@@ -257,8 +257,8 @@ periodics:
       - runner.sh
       - "./scripts/ci-e2e.sh"
       env:
-      - name: GINKGO_FOCUS
-        value: "\\[Conformance\\] \\[K8s-Install-ci-latest\\]"
+      - name: GINKGO_LABEL_FILTER
+        value: "(Conformance && K8s-Install-ci-latest)"
       # we need privileged mode in order to do docker in docker
       securityContext:
         privileged: true
@@ -308,8 +308,8 @@ periodics:
             # enable IPV6 in bootstrap image
           - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
             value: "true"
-          - name: GINKGO_SKIP
-            value: "\\[Conformance\\]"
+          - name: GINKGO_LABEL_FILTER
+            value: "!Conformance"
           - name: KUBERNETES_VERSION_MANAGEMENT
             value: {{ index (index $.versions ((last $.config.Upgrades).To)) "k8sRelease" }}
           - name: KUBERNETES_VERSION

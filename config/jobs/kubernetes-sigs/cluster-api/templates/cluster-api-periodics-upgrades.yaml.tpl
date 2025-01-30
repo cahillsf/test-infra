@@ -39,8 +39,8 @@ periodics:
         value: "{{ index (index $.versions $upgrade.To) "etcd" }}"
       - name: COREDNS_VERSION_UPGRADE_TO
         value: "{{ index (index $.versions $upgrade.To) "coreDNS" }}"
-      - name: GINKGO_FOCUS
-        value: "\\[Conformance\\] \\[K8s-Upgrade\\]"
+      - name: GINKGO_LABEL_FILTER
+        value: "(Conformance && K8s-Upgrade)"
       # we need privileged mode in order to do docker in docker
       securityContext:
         privileged: true
