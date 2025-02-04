@@ -173,6 +173,8 @@ presubmits:
         # enable IPV6 in bootstrap image
         - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
           value: "true"
+        - name: GINKGO_SKIP
+          value: "\\[Conformance\\]"
         - name: GINKGO_LABEL_FILTER
           value: "!Conformance"
         # This value determines the minimum Kubernetes
@@ -221,6 +223,8 @@ presubmits:
           - runner.sh
           - "./scripts/ci-e2e.sh"
         env:
+          - name: GINKGO_FOCUS
+            value: "\\[PR-Blocking\\]"
           - name: GINKGO_LABEL_FILTER
             value: "PR-Blocking"
         # we need privileged mode in order to do docker in docker
@@ -263,6 +267,8 @@ presubmits:
         - runner.sh
         - "./scripts/ci-e2e.sh"
         env:
+       - name: GINKGO_FOCUS
+          value: "\\[PR-Informing\\]"
         - name: GINKGO_LABEL_FILTER
           value: "PR-Informing"
         # we need privileged mode in order to do docker in docker
@@ -307,6 +313,8 @@ presubmits:
           # enable IPV6 in bootstrap image
           - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
             value: "true"
+          - name: GINKGO_SKIP
+            value: "\\[Conformance\\]"
           - name: GINKGO_LABEL_FILTER
             value: "!Conformance"
         # we need privileged mode in order to do docker in docker
@@ -357,6 +365,8 @@ presubmits:
             value: "{{ index (index $.versions ((last $.config.Upgrades).To)) "etcd" }}"
           - name: COREDNS_VERSION_UPGRADE_TO
             value: "{{ index (index $.versions ((last $.config.Upgrades).To)) "coreDNS" }}"
+          - name: GINKGO_FOCUS
+            value: "\\[Conformance\\] \\[K8s-Upgrade\\]"
           - name: GINKGO_LABEL_FILTER
             value: "(Conformance && K8s-Upgrade)"
         # we need privileged mode in order to do docker in docker
@@ -398,6 +408,8 @@ presubmits:
         - runner.sh
         - "./scripts/ci-e2e.sh"
         env:
+        - name: GINKGO_FOCUS
+          value: "\\[Conformance\\] \\[K8s-Install-ci-latest\\]"
         - name: GINKGO_LABEL_FILTER
           value: "(Conformance && K8s-Install)"
         # we need privileged mode in order to do docker in docker
@@ -483,6 +495,8 @@ presubmits:
         # enable IPV6 in bootstrap image
         - name: "DOCKER_IN_DOCKER_IPV6_ENABLED"
           value: "true"
+        - name: GINKGO_SKIP
+          value: "\\[Conformance\\]"
         - name: GINKGO_LABEL_FILTER
           value: "!Conformance"
         - name: KUBERNETES_VERSION_MANAGEMENT
